@@ -1,0 +1,486 @@
+:root {
+    --a4-width: 210mm;
+    --a4-height: 297mm;
+    --primary-accent: #742a2a;
+    /* Traditional Academic Maroon */
+    --secondary-accent: #1e3a8a;
+    /* Deep University Blue */
+    --border-color: #4b5563;
+}
+
+body {
+    background-color: #f1f5f9;
+    font-family: 'Crimson Pro', serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* ------------------------------------------------------------------
+   PRINT ENGINE: Forces A4 dimensions and hides UI
+------------------------------------------------------------------- */
+@media print {
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .print-root {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        height: 297mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        visibility: visible !important;
+    }
+
+    #page-content {
+        transform: scale(1) !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        visibility: visible !important;
+    }
+}
+
+/* ------------------------------------------------------------------
+   PREVIEW STYLING: Scaled view for web browsers
+------------------------------------------------------------------- */
+.a4-preview {
+    width: var(--a4-width);
+    height: var(--a4-height);
+    background: white;
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
+    margin: 2rem auto;
+    position: relative;
+    overflow: hidden;
+    padding: 15mm;
+    transform-origin: top center;
+    border: 1px solid #e2e8f0;
+}
+
+.page-border {
+    position: absolute;
+    top: 10mm;
+    left: 10mm;
+    right: 10mm;
+    bottom: 10mm;
+    border: 6px double var(--border-color);
+    pointer-events: none;
+    z-index: 50;
+}
+
+/* SVG Curved Text Engine */
+.curved-text-svg {
+    width: 100%;
+    height: 220px;
+    overflow: visible;
+}
+
+.curved-text {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    fill: var(--primary-accent);
+    text-transform: uppercase;
+}
+
+/* Interactive Sidebar */
+.sidebar {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #ffffff;
+}
+
+.input-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.input-card:hover {
+    transform: translateY(-2px);
+}
+
+.label-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+    display: block;
+}
+
+.custom-field {
+    width: 100%;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    transition: border-color 0.2s;
+}
+
+.custom-field:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Logo Preview */
+.logo-preview-box {
+    width: 100%;
+    height: 90px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.logo-preview-box img {
+    max-height: 80%;
+    max-width: 80%;
+    object-fit: contain;
+}
+
+/* Animation */
+@keyframes subtle-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+    }
+}
+
+.pulse-btn {
+    animation: subtle-pulse 2s infinite ease-in-out;
+}
+
+/* ===== BORDER STYLE OPTIONS ===== */
+/* Style 1: Classic Double (default) */
+.border-style-classic {
+    border: 6px double var(--border-color);
+}
+
+/* Style 2: Elegant Gold */
+.border-style-gold {
+    border: 4px solid #b8860b;
+    box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #daa520,
+        0 0 0 2px #b8860b;
+}
+
+/* Style 3: Modern Gradient - Border only, transparent inside */
+.border-style-gradient {
+    border: 5px solid;
+    border-image: linear-gradient(135deg, #667eea, #764ba2, #f093fb) 1;
+    background: transparent;
+}
+
+/* Style 4: Victorian Ornate */
+.border-style-victorian {
+    border: 3px solid #4b5563;
+    box-shadow: inset 0 0 0 1px #4b5563, inset 0 0 0 4px #fff,
+        inset 0 0 0 5px #4b5563;
+}
+
+.border-style-victorian::before,
+.border-style-victorian::after {
+    content: '❧';
+    position: absolute;
+    font-size: 28px;
+    color: #4b5563;
+}
+
+.border-style-victorian::before {
+    top: 2mm;
+    left: 2mm;
+}
+
+.border-style-victorian::after {
+    bottom: 2mm;
+    right: 2mm;
+    transform: rotate(180deg);
+}
+
+/* Style 5: Simple Solid */
+.border-style-solid {
+    border: 4px solid #1e3a8a;
+}
+
+/* Style 6: Dashed Academic */
+.border-style-dashed {
+    border: 4px dashed #742a2a;
+}
+
+/* ===== TOGGLE SWITCH STYLES ===== */
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked+.toggle-slider {
+    background-color: #6366f1;
+}
+
+.toggle-switch input:checked+.toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* ===== VISIBILITY TOGGLE BUTTONS ===== */
+.visibility-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.visibility-toggle:hover {
+    background: #e2e8f0;
+}
+
+.visibility-toggle.hidden-field {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.visibility-toggle .material-symbols-outlined {
+    font-size: 16px;
+    color: #64748b;
+}
+
+.visibility-toggle.hidden-field .material-symbols-outlined {
+    color: #ef4444;
+}
+
+/* ===== EDITABLE LABEL STYLES ===== */
+.editable-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px dashed transparent;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: text;
+    transition: all 0.2s;
+}
+
+.editable-label:hover {
+    border-color: #cbd5e0;
+    background: #f8fafc;
+}
+
+.editable-label:focus {
+    outline: none;
+    border-color: #6366f1;
+    background: white;
+}
+
+/* ===== BORDER SELECTOR DROPDOWN ===== */
+.border-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    background: white;
+    cursor: pointer;
+}
+
+.border-select:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* ===== FIELD ROW HELPER ===== */
+.field-row-hidden {
+    display: none !important;
+}
+
+/* ===== COLOR PICKER STYLES ===== */
+.color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-picker {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 2px;
+    background: white;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+/* ===== FONT SELECTOR ===== */
+.font-select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    background: white;
+    cursor: pointer;
+    flex: 1;
+}
+
+.font-select:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* ===== COMPACT SIZE INPUT ===== */
+.size-input {
+    width: 60px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.size-input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* ===== STYLING CONTROL ROW ===== */
+.styling-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.styling-row .label-tag {
+    min-width: 80px;
+    margin-bottom: 0;
+}
+
+.styling-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+/* ===== COMPACT TOGGLE ===== */
+.mini-toggle {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.mini-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.mini-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 18px;
+}
+
+.mini-slider::before {
+    content: "";
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.mini-toggle input:checked+.mini-slider {
+    background-color: #6366f1;
+}
+
+.mini-toggle input:checked+.mini-slider::before {
+    transform: translateX(14px);
+}
