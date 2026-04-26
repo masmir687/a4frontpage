@@ -162,7 +162,23 @@ function responsiveScale() {
     let scale = (main.offsetWidth - padding) / a4Width;
     scale = Math.max(minScale, Math.min(1, scale));
     
+    // Use top-left origin to prevent cutting off the left side
+    preview.style.transformOrigin = 'top left';
     preview.style.transform = `scale(${scale})`;
+
+    // Align container properly
+    const container = preview.parentElement;
+    if (container) {
+        container.style.width = (a4Width * scale) + 'px';
+        container.style.height = (preview.offsetHeight * scale) + 'px';
+        
+        // Center when smaller than view, otherwise align left for scroll
+        if (a4Width * scale < main.offsetWidth - padding) {
+            container.style.margin = '0 auto';
+        } else {
+            container.style.margin = '0';
+        }
+    }
 }
 
 /**
