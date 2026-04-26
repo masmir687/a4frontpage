@@ -63,6 +63,7 @@ body {
     background: white;
     box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
     margin: 2rem auto;
+    margin-bottom: 5rem; /* Extra space at bottom for scrolling */
     position: relative;
     overflow: hidden;
     padding: 15mm;
@@ -97,10 +98,18 @@ body {
 
 /* Interactive Sidebar */
 .sidebar {
-    height: 100vh;
+    height: auto;
+    max-height: calc(100vh - 80px); /* Leave room for mobile header if any, or just scrollable */
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e0 #ffffff;
+}
+
+@media (min-width: 1024px) {
+    .sidebar {
+        height: 100%;
+        max-height: none;
+    }
 }
 
 .input-card {
@@ -483,4 +492,23 @@ body {
 
 .mini-toggle input:checked+.mini-slider::before {
     transform: translateX(14px);
+}
+
+/* Custom Scrollbar for Preview Area */
+main::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+main::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+main::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

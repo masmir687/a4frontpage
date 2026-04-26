@@ -52,6 +52,15 @@ function setupApp() {
     // Screen Preview Resizing
     window.addEventListener('resize', responsiveScale);
     responsiveScale();
+
+    // Load saved data
+    loadFromLocal();
+
+    // Setup Auto-save for all inputs
+    setupAutoSave();
+
+    // Setup Exit Handling
+    setupExitHandling();
 }
 
 /**
@@ -141,7 +150,18 @@ function responsiveScale() {
     const preview = document.getElementById('page-content');
     if (!main || !preview) return;
 
-    const scale = Math.min(1, (main.offsetWidth - 80) / 794);
+    // A4 width in pixels is roughly 794px at 96dpi
+    const a4Width = 794;
+    const padding = 80;
+    
+    // On small screens, we want a minimum scale so it's readable, 
+    // which will trigger both horizontal and vertical scrolling.
+    const isMobile = window.innerWidth < 1024;
+    const minScale = isMobile ? 0.75 : 0.4; // Mobile gets 0.75 min, Desktop can scale more if window is tiny
+    
+    let scale = (main.offsetWidth - padding) / a4Width;
+    scale = Math.max(minScale, Math.min(1, scale));
+    
     preview.style.transform = `scale(${scale})`;
 }
 
@@ -440,6 +460,152 @@ function registerServiceWorker() {
 }
 
 /**
+ * PERSISTENCE SYSTEM (AUTO-SAVE/LOAD)
+ */
+function setupAutoSave() {
+    // Collect all inputs, selects, and textareas
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => saveToLocal());
+        input.addEventListener('change', () => saveToLocal());
+    });
+
+    // Special case for custom visibility buttons
+    const originalToggleFieldVisibility = window.toggleFieldVisibility;
+    window.toggleFieldVisibility = (fieldId) => {
+        originalToggleFieldVisibility(fieldId);
+        saveToLocal();
+    };
+
+    const originalToggleProjectField = window.toggleProjectField;
+    window.toggleProjectField = (fieldId) => {
+        originalToggleProjectField(fieldId);
+        saveToLocal();
+    };
+}
+
+function saveToLocal() {
+    const data = {
+        inputs: {},
+        fieldVisibility: fieldVisibility,
+        projectFieldVisibility: projectFieldVisibility,
+        images: {
+            univ: document.getElementById('p-univ').src,
+            coll: document.getElementById('p-coll').src,
+            bg: document.getElementById('bg-image-preview').src
+        }
+    };
+
+    // Save all named inputs
+    document.querySelectorAll('input[id], select[id], textarea[id]').forEach(el => {
+        if (el.type === 'checkbox') {
+            data.inputs[el.id] = el.checked;
+        } else {
+            data.inputs[el.id] = el.value;
+        }
+    });
+
+    localStorage.setItem('a4PageBuilderData', JSON.stringify(data));
+}
+
+function loadFromLocal() {
+    const raw = localStorage.getItem('a4PageBuilderData');
+    if (!raw) return;
+
+    try {
+        const data = JSON.parse(raw);
+        
+        // Restore Inputs
+        if (data.inputs) {
+            Object.keys(data.inputs).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = data.inputs[id];
+                        el.dispatchEvent(new Event('change'));
+                    } else {
+                        el.value = data.inputs[id];
+                        el.dispatchEvent(new Event('input'));
+                    }
+                }
+            });
+        }
+
+        // Restore Visibility Status
+        if (data.fieldVisibility) {
+            Object.keys(data.fieldVisibility).forEach(id => {
+                // If visibility differs from default, toggle it
+                if (data.fieldVisibility[id] !== fieldVisibility[id]) {
+                    toggleFieldVisibility(id);
+                }
+            });
+        }
+        if (data.projectFieldVisibility) {
+            Object.keys(data.projectFieldVisibility).forEach(id => {
+                if (data.projectFieldVisibility[id] !== projectFieldVisibility[id]) {
+                    toggleProjectField(id);
+                }
+            });
+        }
+
+        // Restore Images
+        if (data.images) {
+            if (data.images.univ) {
+                document.getElementById('p-univ').src = data.images.univ;
+                document.getElementById('img-univ').src = data.images.univ;
+            }
+            if (data.images.coll) {
+                document.getElementById('p-coll').src = data.images.coll;
+                document.getElementById('img-coll').src = data.images.coll;
+            }
+            if (data.images.bg && data.images.bg.startsWith('data:')) {
+                document.getElementById('bg-image-preview').src = data.images.bg;
+                document.getElementById('bg-image-preview').classList.remove('hidden');
+                document.getElementById('bg-image-text').classList.add('hidden');
+                document.getElementById('page-content').style.backgroundImage = `url(${data.images.bg})`;
+                document.getElementById('page-content').style.backgroundSize = 'cover';
+            }
+        }
+
+        // Trigger updates
+        changeBorderStyle();
+        updateBorderColor();
+        updateBackground();
+        updatePositions();
+        updateArc();
+        ['univ', 'coll', 'header', 'topic', 'session'].forEach(id => updateTextStyle(id));
+        ['name', 'sem', 'course', 'roll', 'uni-roll', 'reg'].forEach(id => updateFieldLabel(id));
+
+    } catch (e) {
+        console.error("Load failed", e);
+    }
+}
+
+/**
+ * EXIT HANDLING
+ */
+let lastBackPress = 0;
+function setupExitHandling() {
+    history.pushState({ page: 'exit-wait' }, '', window.location.href);
+
+    window.addEventListener('popstate', () => {
+        const now = Date.now();
+        saveToLocal();
+
+        if (now - lastBackPress < 2000) {
+            setTimeout(() => {
+                window.close();
+                window.location.href = "about:blank";
+            }, 300);
+        } else {
+            lastBackPress = now;
+            alert("Press BACK again to exit app"); // Using alert as fallback for Toast if not implemented
+            history.pushState({ page: 'exit-wait' }, '', window.location.href);
+        }
+    });
+}
+
+/**
  * ENHANCED SETUP
  */
 function initializeApp() {
@@ -448,7 +614,11 @@ function initializeApp() {
     setupLogoToggles();
     updatePositions();
     registerServiceWorker();
+
+    // Delay start for responsive scale to ensure DOM info is correct
+    setTimeout(responsiveScale, 100);
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeApp);
+
